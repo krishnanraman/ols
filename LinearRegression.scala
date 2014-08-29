@@ -8,10 +8,21 @@ object LinearRegression extends App {
   type D = Double
 
   println("Random Dataset around 2x + 3")
+
   val xy = (0.0 to 100.0 by 0.2).map{ x=> (x,2 * x + 3 + math.random) }
   val ols = LinearRegression(xy)
   println("Model: " + ols.fit.format(3).mkStr)
   println( ols.predict(4.0))
+
+  val xy2 = (0.0 to 100.0 by 0.2).map{ x=> (x,2 * x + 3 + math.random/10.0) }
+  val ols2 = LinearRegression(xy2)
+  println("Model: " + ols2.fit.format(3).mkStr)
+  println( ols2.predict(4.0))
+
+  val xy3 = (0.0 to 100.0 by 0.2).map{ x=> (x,2 * x + 3 ) }
+  val ols3 = LinearRegression(xy3)
+  println("Model: " + ols3.fit.format(3).mkStr)
+  println( ols3.predict(4.0))
 }
 
 import LinearRegression.D
@@ -26,8 +37,8 @@ trait regress {
 case class LinearRegression(xy:Seq[(D,D)]) extends regress {
   assert(xy.size > 2)
 
-  private[this] var line:Option[Line] = None
-  private val n = xy.size
+  val line:Option[Line] = Some(fit)
+  val n = xy.size
 
   def fit:Line = {
       val poly = PCF.create(1)
@@ -35,8 +46,7 @@ case class LinearRegression(xy:Seq[(D,D)]) extends regress {
         val (x,y) = pt
         new Point(1.0, x, y)
       }.asJava )
-      line = Some(Line(res(1), res(0)))
-      line.get
+      Line(res(1), res(0))
   }
 
   def yMean = xy.map { case (x,y) => y}.sum/(n+0.0)
